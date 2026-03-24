@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"C:/Users/admin/.claude\" 2>/dev/null || dir \"C:\\\\Users\\\\admin\\\\.claude\")",
+      "mcp__plugin_github_github__get_file_contents",
+      "mcp__plugin_github_github__list_commits",
+      "WebSearch",
+      "Bash(npx skills:*)",
+      "Bash(explorer ~/.claude/agents && explorer ~/.claude/skills)",
+      "Bash(powershell -Command \"Start-Process explorer '$HOME/.claude/agents'\" && powershell -Command \"Start-Process explorer '$HOME/.claude/skills'\")"
+    ]
+  }
+}
