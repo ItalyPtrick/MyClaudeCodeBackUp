@@ -1,6 +1,6 @@
 # Claude Code 全局配置备份
 
-> 我的 Claude Code 用户级配置备份，仅供个人参考和对外展示工作流。
+> 我的 Claude Code 混合模式备份：以用户级配置为主，同时保留部分可展示、可复用的实体内容。
 > 所有敏感信息（API key、token）均已排除在外。
 
 ---
@@ -67,7 +67,6 @@
 - `pdf`, `docx`, `xlsx` — 各格式文件读写
 - `obsidian-cli`, `obsidian-markdown`, `obsidian-bases` — Obsidian 笔记操作
 - `defuddle` — 网页抓取转 Markdown
-- `web-access` — 联网操作统一入口
 
 **Python 专项**
 - `async-python-patterns` — asyncio 并发模式
@@ -127,12 +126,32 @@
 - 参考 `plugins/installed_plugins.json` 里的插件 ID
 - 在 Claude Code 中逐个安装
 
+### 当前备份策略
+
+这个仓库现在采用 **混合模式**：
+- 保留 `CLAUDE.md`、`agents/`、`rules/`、`skills/` 等长期维护内容
+- 保留 `plugins/installed_plugins.json` 与 `plugins/known_marketplaces.json`，用于记录插件来源和恢复线索
+- 不再把 `plugins/cache/` 这类可重建缓存当作长期资产
+- 不跟踪 `plugins/marketplaces/*` 仓库实体，避免把不完整的 gitlink / 子仓库状态带入备份
+
 ### 不在此备份中的内容
 
 | 排除项 | 原因 |
 |--------|------|
-| `settings.json` | 含 API token 等密钥 |
-| `settings.local.json` | 含个人本地路径 |
+| `settings.json` | 可能含 API token 等密钥 |
+| `settings.local.json` | 含个人本地权限配置/路径 |
 | `plans/` | 临时实施计划，项目特定，自动生成 |
-| `plugins/cache/` | 插件二进制缓存，可自动重新下载 |
+| `plugins/cache/` | 插件缓存与版本目录，可重新下载，会制造大量 Git 噪音 |
+| `plugins/data/` | 运行时数据，不适合作为公开备份资产 |
 | `sessions/`, `projects/` 等 | 历史会话数据，属个人隐私 |
+| `cache/`, `debug/`, `history.jsonl` 等 | 本地运行痕迹、调试输出或历史记录 |
+
+### 恢复思路
+
+如果要参考或恢复这套配置，优先依赖：
+1. `CLAUDE.md`、`rules/`、`agents/`、`skills/` 恢复行为规范与工作流
+2. `plugins/installed_plugins.json` 查看已安装插件 ID 与版本
+3. `plugins/known_marketplaces.json` 查看插件市场来源
+4. 按需重新安装插件，而不是直接恢复 `plugins/cache/` 或 marketplace 仓库实体
+
+> 注：`plugins/installed_plugins.json` 与 `plugins/known_marketplaces.json` 可能包含本机安装路径，用于恢复线索；它们不是 token 或 API key，但属于环境元数据。
