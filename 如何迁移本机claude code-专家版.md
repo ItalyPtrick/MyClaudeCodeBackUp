@@ -51,10 +51,11 @@ Claude Code 的可迁移资产分 4 层：
 定义插件启用状态、插件来源、默认 shell、部分权限策略。
 
 本机对应：
-- `C:\Users\admin\.claude\settings.json`
-- `C:\Users\admin\.claude\plugins\installed_plugins.json`
+- `C:\Users\admin\.claude\settings.json`（权威源：`enabledPlugins` + `extraKnownMarketplaces`）
 
 这一层可以迁移，但前提是脱敏、拆分、筛选，只保留跨机仍成立的部分。
+
+> `plugins/installed_plugins.json` 和 `known_marketplaces.json` 已证实是此设计层的冲突成品（跨机路径 / 时间戳 / commit hash 耦合），`plugins/` 目录整体不纳入 git，皆由 CLI 在新机重建。
 
 ### 4. 机器耦合层
 定义那些依赖当前机器路径、命令、程序安装位置、白名单结构的配置。
@@ -70,7 +71,7 @@ Claude Code 的可迁移资产分 4 层：
 > **路径核对注**：早期版本本文档将 `settings.local.json` 指为 `C:\Users\admin\.claude\.claude\settings.local.json`（双 `.claude` 嵌套），实际路径已不成立。若文件存在，通常在 `C:\Users\admin\.claude\settings.local.json` 或项目目录内。
 
 ## 本机当前插件状态说明
-基于 `C:\Users\admin\.claude\settings.json.enabledPlugins` 与 `plugins\installed_plugins.json` 的对照结果，状态需分三类而非两类。
+基于 `C:\Users\admin\.claude\settings.json.enabledPlugins` 字段（下表所列"默认状态"可通过旧机 `claude plugin list` 快照核对），状态需分三类而非两类。
 
 ### 显式启用（`enabledPlugins: true`）
 - `code-review@claude-plugins-official`
@@ -98,7 +99,7 @@ Claude Code 的可迁移资产分 4 层：
 - **显式禁用**反映过一个主动决定："装过但现阶段不用"，跨机价值低，可删。
 - **默认状态**代表"装了但还没判断使不使"，跨机时不写入 `enabledPlugins` 即可保持状态。
 
-> 早期版本本文档曾列出 `everything-claude-code@everything-claude-code`，当前已卸载，仅 `plugins/cache/everything-claude-code/` 目录残留，已不在任何分类内。
+> 早期版本本文档曾列出 `everything-claude-code@everything-claude-code`，当前已卸载，已不在任何分类内。
 
 ## 插件恢复为什么不是“勾上 enabledPlugins 就行”
 插件恢复至少包含三段链路：
@@ -175,7 +176,6 @@ Claude Code 的可迁移资产分 4 层：
 - `skills`
 - `agents`
 - 无密钥版 `settings.json`
-- `installed_plugins.json`
 - 有长期价值的 `projects\*\memory`
 
 ### 不该优先保留

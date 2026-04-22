@@ -87,9 +87,9 @@ Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 →
 
 ### 5. `plugins/` — 插件市场扩展
 
-实际安装列表以 `plugins/installed_plugins.json` 为准。
+> `plugins/` 目录整体不纳入 git（Claude CLI 运行时产物）。下文清单为快照式记录，权威源是 `settings.json.enabledPlugins` 和 `extraKnownMarketplaces`。
 
-**市场源**（`plugins/known_marketplaces.json`）
+**市场源**
 
 | 市场 | 地址 |
 |------|------|
@@ -120,8 +120,6 @@ Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 →
 | `playwright` | claude-plugins-official | 默认 | 浏览器自动化测试 |
 | `kotlin-lsp` | claude-plugins-official | 默认 | Kotlin LSP |
 
-> **历史残留**：仓库中 `plugins/cache/everything-claude-code/` 目录包含早期安装的插件文件。该插件已卸载，对应市场源也已从 `known_marketplaces.json` 移除；仅因提交先于 `.gitignore` 收紧规则，git 仍追踪这批文件，不代表当前生效。
-
 ---
 
 ## 板块二：如何复用
@@ -135,7 +133,7 @@ Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 →
 
 **使用 Agent 编排** — 拷贝 `agents/*.md` 到 `~/.claude/agents/`，配合 `rules/common/agents.md` 了解调用规则。
 
-**同步插件** — 参考 `plugins/installed_plugins.json` 的插件 ID 和 `plugins/known_marketplaces.json` 的市场源逐个安装。
+**同步插件** — 参考 `settings.json.enabledPlugins` 的插件 ID 和 `extraKnownMarketplaces` 的市场源，在新机器用 `claude plugin marketplace add` / `claude plugin install` 逐个恢复。
 
 **迁移到新机器** — 仓库内附两份迁移手册：
 - `如何迁移本机claude code.md` — 执行版清单
@@ -143,7 +141,7 @@ Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 →
 
 ### 不在此备份中的内容
 
-`.gitignore` 采用 `*` 默认全排除，仅白名单放行：目录 `agents/`、`plugins/`（除 `cache/` 和 `data/`）、`rules/`、`skills/`（`skills/web-access/` 除外）；根文件 `CLAUDE.md`、`README.md`、`无密钥版settings.json`、`如何迁移本机claude code.md`、`如何迁移本机claude code-专家版.md`。以下明确被排除：
+`.gitignore` 采用 `*` 默认全排除，仅白名单放行：目录 `agents/`、`rules/`、`skills/`（`skills/web-access/` 除外）；根文件 `CLAUDE.md`、`README.md`、`无密钥版settings.json`、`如何迁移本机claude code.md`、`如何迁移本机claude code-专家版.md`。以下明确被排除：
 
 | 排除项 | 原因 |
 |--------|------|
@@ -153,5 +151,5 @@ Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 →
 | `sessions/` `projects/` `paste-cache/` `file-history/` | 会话与操作历史 |
 | `backups/` `cache/` `debug/` `metrics/` `shell-snapshots/` | 临时与缓存数据 |
 | `plans/` | 项目特定的临时实施计划 |
-| `plugins/cache/` `plugins/data/` | 插件二进制缓存，可自动重下 |
+| `plugins/` | Claude CLI 运行时目录：插件注册、marketplace gitlink、transcript 缓存等，完全交还 CLI 自管；跨机通过 `settings.json.enabledPlugins` + `extraKnownMarketplaces` 驱动重装 |
 | `skills/web-access/` | 外部仓库（`eze-is/web-access`），本地独立 `git clone` 管理 |

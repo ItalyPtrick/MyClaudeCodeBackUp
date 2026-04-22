@@ -20,7 +20,6 @@
 
 按需再补：
 - `projects\*\memory`
-- `installed_plugins.json`
 - 经人工复核后的 `settings.local.json`
 
 不要迁：
@@ -32,7 +31,9 @@
 - debug / metrics / browser-profiles / shell-snapshots
 
 ## 本机当前插件状态
-以 `C:\Users\admin\.claude\settings.json` 的 `enabledPlugins` 与 `C:\Users\admin\.claude\plugins\installed_plugins.json` 对照结果为准。
+以 `C:\Users\admin\.claude\settings.json` 的 `enabledPlugins` 字段为准（`plugins/` 目录整体不纳入 git，不应作为迁移源）。
+
+> 旧机器可在迁移前执行 `claude plugin list > plugins-snapshot.txt` 留一份快照，作为新机器逐个核对的参考。
 
 ### 显式启用（`enabledPlugins: true`）
 - `code-review@claude-plugins-official`
@@ -57,7 +58,7 @@
 
 说明：
 - "默认状态"不等于"已禁用"。迁移时若希望保持现状，这两个插件的 key 可以继续不写进新机器的 `enabledPlugins`。
-- `everything-claude-code@everything-claude-code` 曾经装过，当前已卸载，仅 `plugins/cache/everything-claude-code/` 残留，不属于迁移目标。
+- `everything-claude-code@everything-claude-code` 曾经装过，当前已卸载，不属于迁移目标。
 
 ## Marketplace 来源清单
 恢复插件之前必须先注入这四个市场源（见 `settings.json.extraKnownMarketplaces`）：
@@ -155,20 +156,18 @@ git clone https://github.com/eze-is/web-access C:\Users\admin\.claude\skills\web
 
 ### 按需迁移
 - `C:\Users\admin\.claude\projects\*\memory`
-- `C:\Users\admin\.claude\plugins\installed_plugins.json`
 - `settings.local.json`（如果实际存在）
 
 说明：
 - `memory` 只迁长期有价值的项目记忆。
-- `installed_plugins.json` 用于对照恢复插件状态。
+- `plugins/` 目录本身不备份也不迁移（是 Claude CLI 运行时产物）；新机器按 `settings.json.enabledPlugins` + `extraKnownMarketplaces` 逐个重装即可。
 - `settings.local.json` 定位是"机器本地覆盖层"，默认不跨机照搬；只有新机器路径结构接近时才考虑复用。
 - **实际路径核对**：本机当前 `C:\Users\admin\.claude\` 下不存在该文件；如果存在，通常在 `C:\Users\admin\.claude\settings.local.json` 或项目目录内。早期版本文档提到的 `C:\Users\admin\.claude\.claude\settings.local.json` 已不再成立。
 
 ### 不要迁移
 运行态、缓存、个人历史等短期数据：
 
-- `C:\Users\admin\.claude\plugins\cache`（插件二进制，可自动重下）
-- `C:\Users\admin\.claude\plugins\data`
+- `C:\Users\admin\.claude\plugins\`（整个目录：Claude CLI 运行时产物，包含插件注册 / cache / marketplace gitlink / transcript 等，新机器 CLI 自动重建）
 - `C:\Users\admin\.claude\sessions`
 - `C:\Users\admin\.claude\history.jsonl`
 - `C:\Users\admin\.claude\browser-profiles`
@@ -215,7 +214,7 @@ git clone https://github.com/eze-is/web-access C:\Users\admin\.claude\skills\web
 - `skills`
 - `agents`
 - 无密钥版 `settings.json`
-- `installed_plugins.json`（可选）
+- `claude plugin list > plugins-snapshot.txt`（可选，用作新机核对参考）
 - `projects\*\memory`（按需）
 
 ### 第二步：在新机器恢复基础文件
