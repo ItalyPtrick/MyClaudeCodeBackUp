@@ -1,37 +1,40 @@
 # Claude Code 全局配置备份
 
 > 我的 Claude Code 用户级配置备份，仅供个人参考和对外展示工作流。
-> 所有敏感信息（API key、token）均已排除在外。
+> 所有敏感信息（API key、token、历史会话）均已通过 `.gitignore` 排除。
 
 ---
 
-## 板块一：我配置了什么
+## 板块一：配置分层（按响应顺序）
 
-### CLAUDE.md（全局系统提示）
+Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 → 任务子代理 → 工作流 skill → 插件扩展**。
 
-- `CLAUDE.md` — 通用规范（当前生效）
+### 1. `CLAUDE.md` — 全局系统提示
 
-主要内容：环境信息、交互原则、安全底线（禁止 API key 进 Git）。
+每次会话注入的约束层，优先级最高。
 
----
+- **环境**：Windows 11 / PowerShell，优先 Python（Miniconda），中文回复
+- **动手前先想清楚**：不假设、不藏困惑、追根因
+- **简洁优先**：最少代码解决问题，不做投机性扩展
+- **外科手术式改动**：只碰必须碰的，不顺手优化
+- **目标驱动执行**：先定义验收标准，再执行，再验证
+- **`<output_contract>` / `<verbosity_controls>`**：强制回答长度上限与禁止的表达模式
 
-### Rules（行为规范层）
-
-位于 `rules/common/`，对所有项目生效：
+### 2. `rules/` — 行为规范层
 
 | 文件 | 内容 |
 |------|------|
-| `coding-style.md` | 不可变性优先、文件大小控制、错误处理 |
-| `testing.md` | TDD 工作流、80% 覆盖率要求 |
-| `git-workflow.md` | commit 格式、PR 流程 |
-| `security.md` | 提交前安全检查清单、密钥管理 |
-| `agents.md` | Agent 编排规则、何时并行调用 |
+| `rules/common/coding-style.md` | 不可变性优先、文件大小控制、错误处理 |
+| `rules/common/testing.md` | TDD 工作流、80% 覆盖率要求 |
+| `rules/common/git-workflow.md` | commit 格式、PR 流程 |
+| `rules/common/security.md` | 提交前安全检查清单、密钥管理 |
+| `rules/common/agents.md` | Agent 编排规则、何时并行调用 |
 
----
+> `rules/README.md` 描述了多语言扩展层（`typescript/ python/ golang/ swift/`），当前仓库尚未落地，仅 `common/` 生效。
 
-### Agents（任务型子代理）
+### 3. `agents/` — 任务型子代理
 
-位于 `agents/`，由 Claude 自动调用执行有限范围任务：
+由 Claude 自动调用执行有限范围任务：
 
 | Agent | 用途 |
 |-------|------|
@@ -42,97 +45,110 @@
 | `refactor-cleaner` | 死代码清理 |
 | `doc-updater` | 文档同步更新 |
 
----
+### 4. `skills/` — 工作流指令库
 
-### Skills（工作流指令库）
+按需调用的深度操作指南。仓库中同时包含个人添加的 skill 和来自插件市场同步的 skill。
 
-位于 `skills/`，按需调用的深度操作指南：
+#### 4.1 个人添加 / 核心
 
-**AI 开发**
-- `claude-api` — Anthropic SDK 集成模式
-- `rag-implementation` — RAG 系统构建
-- `embedding-strategies` — 向量嵌入选型
-- `fastapi-templates` — FastAPI 生产级模板
+| Skill | 用途 |
+|-------|------|
+| `ceeon-best-minds` | 模拟顶级专家多视角思考 |
+| `web-access` | 联网操作统一入口（CDP 浏览器调度） |
+| `defuddle` | 网页抓取转干净 Markdown |
+| `obsidian-cli` | Obsidian 仓库 CLI 操作 |
+| `obsidian-markdown` | Obsidian Flavored Markdown 语法 |
+| `obsidian-bases` | Obsidian `.base` 视图/公式 |
+| `json-canvas` | `.canvas` 文件节点/边/分组 |
+| `sde-notes` | 工程笔记沉淀规范 |
+| `simple` | 简单任务快捷模板 |
 
-**工程流程**
-- `brainstorming` — 创意转设计稿（有 hard gate）
-- `writing-plans` — 实施计划写入文件
-- `executing-plans` — 执行已有计划
-- `systematic-debugging` — 结构化 debug 流程
-- `test-driven-development` — TDD 强制工作流
-- `verification-before-completion` — 完成前验证清单
-- `skill-creator` — 从历史 session 提取 skill
+#### 4.2 从插件市场同步（superpowers / everything-claude-code）
 
-**内容与文件处理**
-- `pdf`, `docx`, `xlsx` — 各格式文件读写
-- `obsidian-cli`, `obsidian-markdown`, `obsidian-bases` — Obsidian 笔记操作
-- `defuddle` — 网页抓取转 Markdown
-- `web-access` — 联网操作统一入口
+**规划与执行**
+- `writing-plans`、`executing-plans`、`planning-with-files`、`brainstorming`
+
+**调试与验证**
+- `systematic-debugging`、`verification-before-completion`、`test-driven-development`
+
+**Skill 元工具**
+- `skill-creator`、`find-skills`、`using-superpowers`、`dispatching-parallel-agents`
+
+**AI / API 开发**
+- `claude-api`、`rag-implementation`、`embedding-strategies`、`fastapi-templates`、`api-design-principles`
 
 **Python 专项**
-- `async-python-patterns` — asyncio 并发模式
-- `python-error-handling` — 异常处理规范
-- `python-testing-patterns` — pytest 测试策略
+- `async-python-patterns`、`python-error-handling`、`python-testing-patterns`
 
-**其他**
-- `agent-browser` — 浏览器自动化
-- `api-design-principles` — REST/GraphQL 设计原则
-- `json-canvas`, `sde-notes`, `simple` 等
+**文件 / 自动化**
+- `pdf`、`docx`、`xlsx`、`agent-browser`、`webapp-testing`
+
+### 5. `plugins/` — 插件市场扩展
+
+实际安装列表以 `plugins/installed_plugins.json` 为准。
+
+**市场源**（`plugins/known_marketplaces.json`）
+
+| 市场 | 地址 |
+|------|------|
+| `claude-plugins-official` | https://github.com/anthropics/claude-plugins-official.git |
+| `claude-code-lsps` | https://github.com/Piebald-AI/claude-code-lsps.git |
+| `claude-hud` | https://github.com/jarrodwatts/claude-hud |
+| `openai-codex` | https://github.com/openai/codex-plugin-cc |
+
+**已安装插件**
+
+状态取自 `settings.json.enabledPlugins`：`启用` = `true`，`禁用` = `false`，`默认` = 未在该字段中出现。
+
+| 插件 | 市场 | 状态 | 用途 |
+|------|------|------|------|
+| `commit-commands` | claude-plugins-official | 启用 | git commit / push / PR 一键操作 |
+| `context7` | claude-plugins-official | 启用 | 实时拉取最新库文档 |
+| `code-review` | claude-plugins-official | 启用 | PR 代码 review |
+| `github` | claude-plugins-official | 启用 | GitHub API 操作 |
+| `serena` | claude-plugins-official | 启用 | 语义代码分析（LSP 级别） |
+| `superpowers` | claude-plugins-official | 启用 | skill 体系核心插件 |
+| `pyright-lsp` | claude-plugins-official | 启用 | Python 类型检查 LSP |
+| `pyright` | claude-code-lsps | 启用 | 社区 Pyright 封装 |
+| `powershell-editor-services` | claude-code-lsps | 启用 | PowerShell LSP |
+| `claude-hud` | claude-hud | 启用 | 会话状态 HUD |
+| `codex` | openai-codex | 禁用 | OpenAI Codex 集成 |
+| `feature-dev` | claude-plugins-official | 禁用 | 功能开发引导流程 |
+| `frontend-design` | claude-plugins-official | 禁用 | 前端设计指导 |
+| `playwright` | claude-plugins-official | 默认 | 浏览器自动化测试 |
+| `kotlin-lsp` | claude-plugins-official | 默认 | Kotlin LSP |
+
+> **历史残留**：仓库中 `plugins/cache/everything-claude-code/` 目录包含早期安装的插件文件。该插件已卸载，对应市场源也已从 `known_marketplaces.json` 移除；仅因提交先于 `.gitignore` 收紧规则，git 仍追踪这批文件，不代表当前生效。
 
 ---
 
-### Plugins（MCP 插件）
+## 板块二：如何复用
 
-通过 Claude Code 插件市场安装，配置见 `plugins/installed_plugins.json`：
+**提升工作质量** — 从 `rules/common/` 拷贝规范到自己的 `~/.claude/rules/`，重点看 `testing.md` 和 `security.md`。
 
-| 插件 | 来源 | 用途 |
-|------|------|------|
-| `commit-commands` | claude-plugins-official | git commit / push / PR 一键操作 |
-| `frontend-design` | claude-plugins-official | 前端设计指导 |
-| `context7` | claude-plugins-official | 实时拉取最新库文档 |
-| `feature-dev` | claude-plugins-official | 功能开发引导流程 |
-| `code-review` | claude-plugins-official | PR 代码 review |
-| `github` | claude-plugins-official | GitHub API 操作 |
-| `superpowers` | claude-plugins-official | skill 体系核心插件 |
-| `serena` | claude-plugins-official | 语义代码分析（LSP 级别） |
-| `everything-claude-code` | everything-claude-code | 大量工程 skill 集合 |
-| `pyright-lsp` | claude-plugins-official | Python 类型检查 LSP |
+**使用 skill 体系**
+1. 安装 `superpowers`：`/install-plugin superpowers@claude-plugins-official`
+2. 按需拷贝 `skills/` 下目录到你的 `~/.claude/skills/`
+3. Claude 会依任务类型自动触发，或在对话中直接引用 skill 名
 
-插件市场来源：
-- `https://github.com/anthropics/claude-plugins-official.git`
-- `https://github.com/affaan-m/everything-claude-code.git`
-- `https://github.com/Piebald-AI/claude-code-lsps.git`
+**使用 Agent 编排** — 拷贝 `agents/*.md` 到 `~/.claude/agents/`，配合 `rules/common/agents.md` 了解调用规则。
 
----
+**同步插件** — 参考 `plugins/installed_plugins.json` 的插件 ID 和 `plugins/known_marketplaces.json` 的市场源逐个安装。
 
-## 板块二：如何参考这份配置
-
-### 对你有价值的部分
-
-**如果你想提升 Claude Code 工作质量：**
-- 从 `rules/common/` 开始，把规范加进你自己的 `CLAUDE.md`
-- 重点看 `testing.md`（TDD 要求）和 `security.md`（提交前清单）
-
-**如果你想使用 skill 体系：**
-1. 安装 `superpowers` 插件：在 Claude Code 中运行 `/install-plugin superpowers@claude-plugins-official`
-2. 安装 `everything-claude-code` 插件获取更多 skill
-3. 把 `skills/` 下你感兴趣的目录复制到你的 `~/.claude/skills/`
-4. 触发方式：Claude 会根据任务类型自动判断是否调用 skill，或你在对话中直接引用
-
-**如果你想使用 Agent 编排：**
-- 把 `agents/` 下的 `.md` 文件复制到你的 `~/.claude/agents/`
-- 配合 `rules/common/agents.md` 了解调用规则
-
-**如果你只想安装相同的插件：**
-- 参考 `plugins/installed_plugins.json` 里的插件 ID
-- 在 Claude Code 中逐个安装
+**迁移到新机器** — 仓库内附两份迁移手册：
+- `如何迁移本机claude code.md` — 执行版清单
+- `如何迁移本机claude code-专家版.md` — 决策版（四层模型、env 分类、路径耦合）
 
 ### 不在此备份中的内容
+
+`.gitignore` 采用 `*` 默认全排除，仅白名单放行：目录 `agents/`、`plugins/`（除 `cache/` 和 `data/`）、`rules/`、`skills/`；根文件 `CLAUDE.md`、`README.md`、`无密钥版settings.json`、`如何迁移本机claude code.md`、`如何迁移本机claude code-专家版.md`。以下明确被排除：
 
 | 排除项 | 原因 |
 |--------|------|
 | `settings.json` | 含 API token 等密钥 |
-| `settings.local.json` | 含个人本地路径 |
-| `plans/` | 临时实施计划，项目特定，自动生成 |
-| `plugins/cache/` | 插件二进制缓存，可自动重新下载 |
-| `sessions/`, `projects/` 等 | 历史会话数据，属个人隐私 |
+| `config.json` | 本地路径与配置 |
+| `history.jsonl` | 输入历史 |
+| `sessions/` `projects/` `paste-cache/` `file-history/` | 会话与操作历史 |
+| `backups/` `cache/` `debug/` `metrics/` `shell-snapshots/` | 临时与缓存数据 |
+| `plans/` | 项目特定的临时实施计划 |
+| `plugins/cache/` `plugins/data/` | 插件二进制缓存，可自动重下 |

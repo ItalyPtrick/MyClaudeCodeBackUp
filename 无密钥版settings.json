@@ -1,0 +1,108 @@
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "xxx",
+    "ANTHROPIC_BASE_URL": "xxx",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "xxx",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "xxx",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "xxx",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "CLAUDE_CODE_USE_POWERSHELL_TOOL": "1",
+    "GITHUB_PERSONAL_ACCESS_TOKEN": "xxx"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(claude config:*)",
+      "Bash(python -c \":*)",
+      "Bash(conda env:*)",
+      "Bash(conda create:*)",
+      "Bash(conda run:*)",
+      "Bash(npx skills:*)",
+      "PowerShell(Get-ChildItem:*)",
+      "PowerShell(Where-Object:*)",
+      "Read(//c/Users/admin/Documents/WindowsPowerShell/**)",
+      "Read(//c/Users/admin/Documents/**)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:r.jina.ai)",
+      "WebSearch",
+      "mcp__plugin_serena_serena__list_dir",
+      "mcp__plugin_serena_serena__find_file",
+      "mcp__plugin_github_github__get_file_contents",
+      "mcp__plugin_github_github__list_commits",
+      "Skill(update-config)"
+    ],
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": [
+      "C:/Users/admin/.claude",
+      "C:\\Users\\admin\\.claude\\plans"
+    ]
+  },
+  "model": "sonnet",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "(New-Object Media.SoundPlayer 'C:\\Windows\\Media\\Windows Notify.wav').PlaySync()",
+            "shell": "powershell",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "defaultShell": "powershell",
+  "statusLine": {
+    "type": "command",
+    "command": "bash -lc 'plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec \"/c/Program Files/nodejs/node\" \"${plugin_dir}dist/index.js\"'"
+  },
+  "enabledPlugins": {
+    "code-review@claude-plugins-official": true,
+    "codex@openai-codex": false,
+    "commit-commands@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": false,
+    "frontend-design@claude-plugins-official": false,
+    "github@claude-plugins-official": true,
+    "powershell-editor-services@claude-code-lsps": true,
+    "serena@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "claude-hud@claude-hud": true,
+    "superpowers@claude-plugins-official": true,
+    "pyright@claude-code-lsps": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-code-lsps": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/Piebald-AI/claude-code-lsps.git"
+      }
+    },
+    "claude-hud": {
+      "source": {
+        "source": "github",
+        "repo": "jarrodwatts/claude-hud"
+      }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/anthropics/claude-plugins-official.git"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    }
+  },
+  "alwaysThinkingEnabled": false,
+  "effortLevel": "high",
+  "fastMode": false,
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true
+}
