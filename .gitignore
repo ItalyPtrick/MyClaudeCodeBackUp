@@ -3,12 +3,7 @@
 !gitignore
 !agents/
 !agents/**
-!plugins/
-!plugins/**
-plugins/cache/
-plugins/data/
-plugins/install-counts-cache.json
-plugins/blocklist.json
+plugins/
 plans/
 !rules/
 !rules/**
