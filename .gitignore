@@ -1,0 +1,23 @@
+*
+
+!gitignore
+!agents/
+!agents/**
+!plugins/
+!plugins/**
+plugins/cache/
+plugins/data/
+plugins/install-counts-cache.json
+plugins/blocklist.json
+plans/
+!rules/
+!rules/**
+!skills/
+!skills/**
+skills/web-access/
+skills/web-access/**
+!CLAUDE.md
+!无密钥版settings.json
+!README.md
+!如何迁移本机claude code-专家版.md
+!如何迁移本机claude code.md
