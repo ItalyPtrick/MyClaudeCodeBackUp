@@ -54,7 +54,7 @@ Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 →
 | Skill | 用途 |
 |-------|------|
 | `ceeon-best-minds` | 模拟顶级专家多视角思考 |
-| `web-access` | 联网操作统一入口（CDP 浏览器调度） |
+| `web-access` ⁎ | 联网操作统一入口（CDP 浏览器调度） |
 | `defuddle` | 网页抓取转干净 Markdown |
 | `obsidian-cli` | Obsidian 仓库 CLI 操作 |
 | `obsidian-markdown` | Obsidian Flavored Markdown 语法 |
@@ -62,6 +62,8 @@ Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 →
 | `json-canvas` | `.canvas` 文件节点/边/分组 |
 | `sde-notes` | 工程笔记沉淀规范 |
 | `simple` | 简单任务快捷模板 |
+
+> ⁎ `web-access` 不随本仓库同步：通过 `git clone https://github.com/eze-is/web-access C:\Users\admin\.claude\skills\web-access` 独立安装，`.gitignore` 显式排除（见本文底部"不在此备份中的内容"）。更新用 `git pull`。运行时需以 `--remote-debugging-port=9222` 参数启动浏览器（CentBrowser / Chrome 均可），脚本通过该端口 fallback 探测 CDP。
 
 #### 4.2 从插件市场同步（superpowers / everything-claude-code）
 
@@ -141,7 +143,7 @@ Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 →
 
 ### 不在此备份中的内容
 
-`.gitignore` 采用 `*` 默认全排除，仅白名单放行：目录 `agents/`、`plugins/`（除 `cache/` 和 `data/`）、`rules/`、`skills/`；根文件 `CLAUDE.md`、`README.md`、`无密钥版settings.json`、`如何迁移本机claude code.md`、`如何迁移本机claude code-专家版.md`。以下明确被排除：
+`.gitignore` 采用 `*` 默认全排除，仅白名单放行：目录 `agents/`、`plugins/`（除 `cache/` 和 `data/`）、`rules/`、`skills/`（`skills/web-access/` 除外）；根文件 `CLAUDE.md`、`README.md`、`无密钥版settings.json`、`如何迁移本机claude code.md`、`如何迁移本机claude code-专家版.md`。以下明确被排除：
 
 | 排除项 | 原因 |
 |--------|------|
@@ -152,3 +154,4 @@ Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 →
 | `backups/` `cache/` `debug/` `metrics/` `shell-snapshots/` | 临时与缓存数据 |
 | `plans/` | 项目特定的临时实施计划 |
 | `plugins/cache/` `plugins/data/` | 插件二进制缓存，可自动重下 |
+| `skills/web-access/` | 外部仓库（`eze-is/web-access`），本地独立 `git clone` 管理 |

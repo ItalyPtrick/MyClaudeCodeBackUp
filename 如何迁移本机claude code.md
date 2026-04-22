@@ -100,10 +100,18 @@
 - `python-error-handling`
 - `python-testing-patterns`
 - `skill-creator`
-- `web-access`
+- `web-access` ⁎
 - `webapp-testing`
 
 注：上一节"其他插件提供的 skill"里也列了 `webapp-testing`，但本机 `skills\webapp-testing\` 目录同时存在，属于本地 skill；对应的插件 skill 已无依赖，直接迁本地目录即可。
+
+⁎ `web-access` 是外部仓库 `eze-is/web-access`，不随本 repo 迁移。新机器单独执行：
+
+```powershell
+git clone https://github.com/eze-is/web-access C:\Users\admin\.claude\skills\web-access
+```
+
+运行时要求：启动浏览器（CentBrowser / Chrome 均可）时加 `--remote-debugging-port=9222` 参数。脚本按 `[9222, 9229, 9333]` fallback 探测，9222 开着即可连通。更新用 `cd skills\web-access; git pull`。
 
 ### 三、运行时目录（不建议迁）
 - `C:\Users\admin\.claude\skills\learned` — 运行过程中积累的学习内容，属会话态数据，跨机意义不大。新机器会自己重新积累。
