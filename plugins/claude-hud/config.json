@@ -1,0 +1,19 @@
+{
+  "lineLayout": "expanded",
+  "gitStatus": {
+    "enabled": true,
+    "showDirty": true,
+    "showAheadBehind": true,
+    "showFileStats": false
+  },
+  "display": {
+    "showProject": true,
+    "showUsage": false,
+    "usageBarEnabled": true,
+    "showDuration": true,
+    "showTools": true,
+    "showSessionName": false,
+    "showAgents": true,
+    "showTodos": true
+  }
+}
