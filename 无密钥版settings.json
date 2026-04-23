@@ -66,13 +66,14 @@
     "context7@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": false,
-    "github@claude-plugins-official": true,
     "powershell-editor-services@claude-code-lsps": true,
     "serena@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
     "claude-hud@claude-hud": true,
     "superpowers@claude-plugins-official": true,
-    "pyright@claude-code-lsps": true
+    "pyright@claude-code-lsps": true,
+    "github@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "claude-code-lsps": {

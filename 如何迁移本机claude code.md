@@ -100,7 +100,6 @@
 - `pdf-converter`
 - `python-error-handling`
 - `python-testing-patterns`
-- `skill-creator`
 - `web-access` ⁎
 - `webapp-testing`
 

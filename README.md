@@ -74,7 +74,7 @@ Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 →
 - `systematic-debugging`、`verification-before-completion`、`test-driven-development`
 
 **Skill 元工具**
-- `skill-creator`、`find-skills`、`using-superpowers`、`dispatching-parallel-agents`
+- `find-skills`、`using-superpowers`、`dispatching-parallel-agents`
 
 **AI / API 开发**
 - `claude-api`、`rag-implementation`、`embedding-strategies`、`fastapi-templates`、`api-design-principles`
