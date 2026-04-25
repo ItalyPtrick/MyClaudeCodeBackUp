@@ -1,155 +1,171 @@
-# Claude Code 全局配置备份
+# Claude Code 全局配置总览
 
-> 我的 Claude Code 用户级配置备份，仅供个人参考和对外展示工作流。
-> 所有敏感信息（API key、token、历史会话）均已通过 `.gitignore` 排除。
-
----
-
-## 板块一：配置分层（按响应顺序）
-
-Claude Code 接到请求时的生效链路：**系统提示 → 行为规范 → 任务子代理 → 工作流 skill → 插件扩展**。
-
-### 1. `CLAUDE.md` — 全局系统提示
-
-每次会话注入的约束层，优先级最高。
-
-- **环境**：Windows 11 / PowerShell，优先 Python（Miniconda），中文回复
-- **动手前先想清楚**：不假设、不藏困惑、追根因
-- **简洁优先**：最少代码解决问题，不做投机性扩展
-- **外科手术式改动**：只碰必须碰的，不顺手优化
-- **目标驱动执行**：先定义验收标准，再执行，再验证
-- **`<output_contract>` / `<verbosity_controls>`**：强制回答长度上限与禁止的表达模式
-
-### 2. `rules/` — 行为规范层
-
-| 文件 | 内容 |
-|------|------|
-| `rules/common/coding-style.md` | 不可变性优先、文件大小控制、错误处理 |
-| `rules/common/testing.md` | TDD 工作流、80% 覆盖率要求 |
-| `rules/common/git-workflow.md` | commit 格式、PR 流程 |
-| `rules/common/security.md` | 提交前安全检查清单、密钥管理 |
-| `rules/common/agents.md` | Agent 编排规则、何时并行调用 |
-
-> `rules/README.md` 描述了多语言扩展层（`typescript/ python/ golang/ swift/`），当前仓库尚未落地，仅 `common/` 生效。
-
-### 3. `agents/` — 任务型子代理
-
-由 Claude 自动调用执行有限范围任务：
-
-| Agent | 用途 |
-|-------|------|
-| `planner` | 复杂功能的实施规划 |
-| `code-reviewer` | 代码写完后自动 review |
-| `tdd-guide` | 新功能/修 bug 时强制 TDD 流程 |
-| `build-error-resolver` | 构建失败时修复错误 |
-| `refactor-cleaner` | 死代码清理 |
-| `doc-updater` | 文档同步更新 |
-
-### 4. `skills/` — 工作流指令库
-
-按需调用的深度操作指南。仓库中同时包含个人添加的 skill 和来自插件市场同步的 skill。
-
-#### 4.1 个人添加 / 核心
-
-| Skill | 用途 |
-|-------|------|
-| `ceeon-best-minds` | 模拟顶级专家多视角思考 |
-| `web-access` ⁎ | 联网操作统一入口（CDP 浏览器调度） |
-| `defuddle` | 网页抓取转干净 Markdown |
-| `obsidian-cli` | Obsidian 仓库 CLI 操作 |
-| `obsidian-markdown` | Obsidian Flavored Markdown 语法 |
-| `obsidian-bases` | Obsidian `.base` 视图/公式 |
-| `json-canvas` | `.canvas` 文件节点/边/分组 |
-| `sde-notes` | 工程笔记沉淀规范 |
-| `simple` | 简单任务快捷模板 |
-
-> ⁎ `web-access` 不随本仓库同步：通过 `git clone https://github.com/eze-is/web-access C:\Users\admin\.claude\skills\web-access` 独立安装，`.gitignore` 显式排除（见本文底部"不在此备份中的内容"）。更新用 `git pull`。运行时需以 `--remote-debugging-port=9222` 参数启动浏览器（CentBrowser / Chrome 均可），脚本通过该端口 fallback 探测 CDP。
-
-#### 4.2 从插件市场同步（superpowers / everything-claude-code）
-
-**规划与执行**
-- `writing-plans`、`executing-plans`、`planning-with-files`、`brainstorming`
-
-**调试与验证**
-- `systematic-debugging`、`verification-before-completion`、`test-driven-development`
-
-**Skill 元工具**
-- `find-skills`、`using-superpowers`、`dispatching-parallel-agents`
-
-**AI / API 开发**
-- `claude-api`、`rag-implementation`、`embedding-strategies`、`fastapi-templates`、`api-design-principles`
-
-**Python 专项**
-- `async-python-patterns`、`python-error-handling`、`python-testing-patterns`
-
-**文件 / 自动化**
-- `pdf`、`docx`、`xlsx`、`agent-browser`、`webapp-testing`
-
-### 5. `plugins/` — 插件市场扩展
-
-> `plugins/` 目录整体不纳入 git（Claude CLI 运行时产物）。下文清单为快照式记录，权威源是 `settings.json.enabledPlugins` 和 `extraKnownMarketplaces`。
-
-**市场源**
-
-| 市场 | 地址 |
-|------|------|
-| `claude-plugins-official` | https://github.com/anthropics/claude-plugins-official.git |
-| `claude-code-lsps` | https://github.com/Piebald-AI/claude-code-lsps.git |
-| `claude-hud` | https://github.com/jarrodwatts/claude-hud |
-| `openai-codex` | https://github.com/openai/codex-plugin-cc |
-
-**已安装插件**
-
-状态取自 `settings.json.enabledPlugins`：`启用` = `true`，`禁用` = `false`，`默认` = 未在该字段中出现。
-
-| 插件 | 市场 | 状态 | 用途 |
-|------|------|------|------|
-| `commit-commands` | claude-plugins-official | 启用 | git commit / push / PR 一键操作 |
-| `context7` | claude-plugins-official | 启用 | 实时拉取最新库文档 |
-| `code-review` | claude-plugins-official | 启用 | PR 代码 review |
-| `github` | claude-plugins-official | 启用 | GitHub API 操作 |
-| `serena` | claude-plugins-official | 启用 | 语义代码分析（LSP 级别） |
-| `superpowers` | claude-plugins-official | 启用 | skill 体系核心插件 |
-| `pyright-lsp` | claude-plugins-official | 启用 | Python 类型检查 LSP |
-| `pyright` | claude-code-lsps | 启用 | 社区 Pyright 封装 |
-| `powershell-editor-services` | claude-code-lsps | 启用 | PowerShell LSP |
-| `claude-hud` | claude-hud | 启用 | 会话状态 HUD |
-| `codex` | openai-codex | 禁用 | OpenAI Codex 集成 |
-| `feature-dev` | claude-plugins-official | 禁用 | 功能开发引导流程 |
-| `frontend-design` | claude-plugins-official | 禁用 | 前端设计指导 |
-| `playwright` | claude-plugins-official | 默认 | 浏览器自动化测试 |
-| `kotlin-lsp` | claude-plugins-official | 默认 | Kotlin LSP |
+> 这份文档记录当前 `C:\Users\admin\.claude` 下**已核实**的全局配置结构、文档分工和迁移边界。
+> 它不是永久正确的环境快照；涉及插件启用、安装和本地覆盖时，应以配置文件现状为准。
 
 ---
 
-## 板块二：如何复用
+## 1. 配置分层
 
-**提升工作质量** — 从 `rules/common/` 拷贝规范到自己的 `~/.claude/rules/`，重点看 `testing.md` 和 `security.md`。
+当前全局 Claude Code 配置可以按下面几层理解：
 
-**使用 skill 体系**
-1. 安装 `superpowers`：`/install-plugin superpowers@claude-plugins-official`
-2. 按需拷贝 `skills/` 下目录到你的 `~/.claude/skills/`
-3. Claude 会依任务类型自动触发，或在对话中直接引用 skill 名
+1. `CLAUDE.md`
+   - 定义长期协作方式、输出风格和执行哲学。
+   - 这是行为约束层，不是运行时状态快照。
 
-**使用 Agent 编排** — 拷贝 `agents/*.md` 到 `~/.claude/agents/`，配合 `rules/common/agents.md` 了解调用规则。
+2. `rules/`
+   - 定义通用工程规范，如编码、测试、git、security、agents。
+   - 这里描述的是规则，不是插件或技能安装状态。
 
-**同步插件** — 参考 `settings.json.enabledPlugins` 的插件 ID 和 `extraKnownMarketplaces` 的市场源，在新机器用 `claude plugin marketplace add` / `claude plugin install` 逐个恢复。
+3. `settings.json`
+   - 当前全局主配置入口。
+   - 已核实包含这些配置类别：`env`、`permissions`、`hooks`、`defaultShell`、`statusLine`、`enabledPlugins`、`extraKnownMarketplaces`、`theme` 等。
 
-**迁移到新机器** — 仓库内附两份迁移手册：
-- `如何迁移本机claude code.md` — 执行版清单
-- `如何迁移本机claude code-专家版.md` — 决策版（四层模型、env 分类、路径耦合）
+4. `.claude/settings.local.json`
+   - 当前存在于 `C:\Users\admin\.claude\.claude\settings.local.json`。
+   - 这是本机本地覆盖层，适合放机器相关或更私有的补充配置；不能默认当作跨机通用配置。
 
-### 不在此备份中的内容
+5. `plugins/installed_plugins.json`
+   - 记录的是**已安装插件**，不是“当前启用插件”的唯一来源。
+   - 文档写插件状态时，必须和 `enabledPlugins` 区分开。
 
-`.gitignore` 采用 `*` 默认全排除，仅白名单放行：目录 `agents/`、`rules/`、`skills/`（`skills/web-access/` 除外）；根文件 `CLAUDE.md`、`README.md`、`无密钥版settings.json`、`如何迁移本机claude code.md`、`如何迁移本机claude code-专家版.md`。以下明确被排除：
+6. `skills/` 与插件内 `skills/`
+   - 本地 skills 来自 `C:\Users\admin\.claude\skills\`。
+   - 插件提供的 skills 来自已启用插件的缓存目录。
+   - 两类来源都可能出现在技能列表中，不能混写成同一来源。
 
-| 排除项 | 原因 |
-|--------|------|
-| `settings.json` | 含 API token 等密钥 |
-| `config.json` | 本地路径与配置 |
-| `history.jsonl` | 输入历史 |
-| `sessions/` `projects/` `paste-cache/` `file-history/` | 会话与操作历史 |
-| `backups/` `cache/` `debug/` `metrics/` `shell-snapshots/` | 临时与缓存数据 |
-| `plans/` | 项目特定的临时实施计划 |
-| `plugins/` | Claude CLI 运行时目录：插件注册、marketplace gitlink、transcript 缓存等，完全交还 CLI 自管；跨机通过 `settings.json.enabledPlugins` + `extraKnownMarketplaces` 驱动重装 |
-| `skills/web-access/` | 外部仓库（`eze-is/web-access`），本地独立 `git clone` 管理 |
+## 2. 当前已核实的关键配置入口
+
+### 主配置文件
+- `C:\Users\admin\.claude\settings.json`
+
+### 本地覆盖文件
+- `C:\Users\admin\.claude\.claude\settings.local.json`
+
+### 插件安装登记
+- `C:\Users\admin\.claude\plugins\installed_plugins.json`
+
+### 规则目录
+- `C:\Users\admin\.claude\rules\`
+
+### 本地 skills 目录
+- `C:\Users\admin\.claude\skills\`
+
+## 3. 插件状态怎么判断
+
+插件状态要分三层看：
+
+### 3.1 已安装插件
+权威来源：`plugins/installed_plugins.json`
+
+当前已核实包含这些插件记录：
+- `frontend-design@claude-plugins-official`
+- `context7@claude-plugins-official`
+- `feature-dev@claude-plugins-official`
+- `kotlin-lsp@claude-plugins-official`
+- `codex@openai-codex`
+- `playwright@claude-plugins-official`
+- `pyright-lsp@claude-plugins-official`
+- `claude-hud@claude-hud`
+- `superpowers@claude-plugins-official`
+- `github@claude-plugins-official`
+- `skill-creator@claude-plugins-official`
+- `claude-md-management@claude-plugins-official`（`local scope`，绑定特定项目路径）
+
+### 3.2 显式启用/禁用插件
+权威来源：`settings.json.enabledPlugins`
+
+当前显式启用：
+- `context7@claude-plugins-official`
+- `pyright-lsp@claude-plugins-official`
+- `claude-hud@claude-hud`
+- `superpowers@claude-plugins-official`
+- `github@claude-plugins-official`
+- `skill-creator@claude-plugins-official`
+
+当前显式禁用：
+- `codex@openai-codex`
+- `feature-dev@claude-plugins-official`
+- `frontend-design@claude-plugins-official`
+
+### 3.3 已安装但未显式声明
+这类插件出现在 `installed_plugins.json`，但不在 `enabledPlugins` 中。
+
+当前至少包括：
+- `kotlin-lsp@claude-plugins-official`
+- `playwright@claude-plugins-official`
+- `claude-md-management@claude-plugins-official`
+
+说明：
+- “已安装”不等于“显式启用”。
+- “未显式声明”不应在文档里被写成“当前启用”。
+- `claude-md-management` 是项目级本地插件，不应写成全局通用插件基线。
+
+## 4. 当前已核实的 marketplace 来源
+
+权威来源：`settings.json.extraKnownMarketplaces`
+
+当前只核实到这 3 个来源：
+
+| 市场 ID | 来源 |
+|---------|------|
+| `claude-hud` | GitHub `jarrodwatts/claude-hud` |
+| `claude-plugins-official` | git `https://github.com/anthropics/claude-plugins-official.git` |
+| `openai-codex` | GitHub `openai/codex-plugin-cc` |
+
+除非配置文件再次变化，否则不应继续把其他 marketplace 写成“当前全局已配置来源”。
+
+## 5. 本地 skills 与插件 skills 的边界
+
+### 本地 skills
+当前仓库中可见的本地 skill 目录包括：
+- `async-python-patterns`
+- `ceeon-best-minds`
+- `defuddle`
+- `pdf`
+- `pdf-converter`
+- `python-error-handling`
+- `python-testing-patterns`
+- `web-access`
+
+### 插件侧能力来源
+插件除了启用 MCP、命令或其他运行时能力，也可能提供 skills；但具体暴露什么能力，应以对应插件当前内容为准，不应只凭插件名在文档里静态推断。
+
+文档里提到某个能力时，最好同时写明它来自“本地 skills 目录”还是“插件侧提供”，避免迁移时只记名字不记来源。
+
+## 6. 当前文档分工
+
+- `README.md`
+  - 负责说明当前全局配置结构、术语和文档导航。
+- `如何迁移本机claude code.md`
+  - 执行版迁移清单，回答“按什么顺序迁”。
+- `如何迁移本机claude code-专家版.md`
+  - 决策版迁移说明，回答“为什么这么迁、哪些东西不该直接搬”。
+- `rules/README.md`
+  - 只说明 `rules/` 目录本身，不再承担全局插件/skills 快照职责。
+
+## 7. 迁移与维护边界
+
+### 适合长期维护进文档的内容
+- 配置入口路径
+- 配置层级关系
+- 字段职责
+- 插件状态的判断方法
+- 迁移边界和风险点
+
+### 不适合写成静态事实的内容
+- token、密钥、完整 env 值
+- 机器专属路径白名单细节
+- 项目专属插件被误写成全局标准配置
+- 已经过时的 skills/plugins/rules 快照
+
+## 8. 使用这份目录时的判断准则
+
+遇到“当前到底启用了什么、从哪里来的、该不该迁移”这类问题时，按这个顺序核查最稳：
+
+1. 先看 `settings.json`
+2. 再看 `.claude/settings.local.json`
+3. 再看 `plugins/installed_plugins.json`
+4. 最后再看文档是否需要同步更新
+
+这样可以避免把旧文档快照误当成当前真实状态。

@@ -8,8 +8,8 @@
 - 为什么执行版清单要按那个顺序做
 
 配套文档：
-- **当前环境快照**（本机配置分层全景）：`C:\Users\admin\.claude\README.md`
-- **执行版**（照着执行的步骤清单）：`C:\Users\admin\Desktop\如何迁移本机claude code.md`
+- **当前全局配置总览**：`C:\Users\admin\.claude\README.md`
+- **执行版**：`C:\Users\admin\.claude\如何迁移本机claude code.md`
 
 ## 核心判断
 Claude Code 的可迁移资产分 4 层：
@@ -36,7 +36,7 @@ Claude Code 的可迁移资产分 4 层：
 - `C:\Users\admin\.claude\CLAUDE.md`
 - `C:\Users\admin\.claude\rules`
 
-这一层最适合直接迁移，因为它表达的是你的长期协作方式，而不是某台机器的状态。
+这一层最适合直接迁移，因为它表达的是长期协作方式，而不是某台机器的状态。
 
 ### 2. 能力定义层
 定义 Claude 有哪些本地能力、任务方法、agent 行为。
@@ -48,14 +48,17 @@ Claude Code 的可迁移资产分 4 层：
 这一层也适合直接迁移，因为它决定的是“你能做什么”。
 
 ### 3. 配置骨架层
-定义插件启用状态、插件来源、默认 shell、部分权限策略。
+定义插件来源、显式启用/禁用状态、默认 shell、通用权限框架等。
 
 本机对应：
-- `C:\Users\admin\.claude\settings.json`（权威源：`enabledPlugins` + `extraKnownMarketplaces`）
+- `C:\Users\admin\.claude\settings.json`
+- `C:\Users\admin\.claude\plugins\installed_plugins.json`
+
+但这两者承担的职责不同：
+- `settings.json` 用来表达配置骨架，尤其是 `enabledPlugins`、`extraKnownMarketplaces`、`defaultShell` 等。
+- `installed_plugins.json` 只是“已安装插件登记”，不应被误当成“当前启用配置”。
 
 这一层可以迁移，但前提是脱敏、拆分、筛选，只保留跨机仍成立的部分。
-
-> `plugins/installed_plugins.json` 和 `known_marketplaces.json` 已证实是此设计层的冲突成品（跨机路径 / 时间戳 / commit hash 耦合），`plugins/` 目录整体不纳入 git，皆由 CLI 在新机重建。
 
 ### 4. 机器耦合层
 定义那些依赖当前机器路径、命令、程序安装位置、白名单结构的配置。
@@ -64,44 +67,64 @@ Claude Code 的可迁移资产分 4 层：
 - `settings.json` 里的 `hooks`
 - `settings.json` 里的 `statusLine`
 - `settings.json` 里的 `permissions.allow` 与 `permissions.additionalDirectories`
-- `settings.local.json`（如果存在）
+- `C:\Users\admin\.claude\.claude\settings.local.json`
 
-这一层不是"不能迁"，而是"不能默认迁"。任何跨机复用都应逐项验证。
+这一层不是“不能迁”，而是“不能默认迁”。任何跨机复用都应逐项验证。
 
-> **路径核对注**：早期版本本文档将 `settings.local.json` 指为 `C:\Users\admin\.claude\.claude\settings.local.json`（双 `.claude` 嵌套），实际路径已不成立。若文件存在，通常在 `C:\Users\admin\.claude\settings.local.json` 或项目目录内。
+## 为什么要把 `settings.json`、`settings.local.json`、`installed_plugins.json` 分开看
+这三类文件最容易在文档里被混写。
+
+### `settings.json`
+它是当前全局主配置入口，负责表达：
+- 主行为开关
+- marketplace 来源
+- 显式启用/禁用插件
+- hooks / statusLine / shell 等运行配置
+
+### `.claude/settings.local.json`
+当前本机该文件存在于：
+- `C:\Users\admin\.claude\.claude\settings.local.json`
+
+它属于本地覆盖层，适合放更私有或更机器相关的补充配置。跨机时，它默认不是“应该直接复制”的对象。
+
+### `installed_plugins.json`
+它回答的是“哪些插件装过”，不是“当前以什么状态工作”。
+
+所以文档里提插件状态时，至少要区分这 3 类事实：
+1. 已安装
+2. 显式启用
+3. 显式禁用
+
+否则迁移时最容易出现“看起来配了，其实没装”或“装了，但文档误写成已启用”。
 
 ## 本机当前插件状态说明
-基于 `C:\Users\admin\.claude\settings.json.enabledPlugins` 字段（下表所列"默认状态"可通过旧机 `claude plugin list` 快照核对），状态需分三类而非两类。
-
 ### 显式启用（`enabledPlugins: true`）
-- `code-review@claude-plugins-official`
-- `commit-commands@claude-plugins-official`
 - `context7@claude-plugins-official`
-- `github@claude-plugins-official`
-- `powershell-editor-services@claude-code-lsps`
-- `serena@claude-plugins-official`
 - `pyright-lsp@claude-plugins-official`
 - `claude-hud@claude-hud`
 - `superpowers@claude-plugins-official`
-- `pyright@claude-code-lsps`
+- `github@claude-plugins-official`
+- `skill-creator@claude-plugins-official`
 
 ### 显式禁用（`enabledPlugins: false`）
 - `codex@openai-codex`
 - `feature-dev@claude-plugins-official`
 - `frontend-design@claude-plugins-official`
 
-### 已安装但未在 `enabledPlugins` 中出现（默认状态）
-- `playwright@claude-plugins-official`
+### 已安装但未显式声明
 - `kotlin-lsp@claude-plugins-official`
+- `playwright@claude-plugins-official`
+- `claude-md-management@claude-plugins-official`
 
 三类区分的意义：
-- **显式启用**才是你当前的实际工作集，属最小迁移目标。
-- **显式禁用**反映过一个主动决定："装过但现阶段不用"，跨机价值低，可删。
-- **默认状态**代表"装了但还没判断使不使"，跨机时不写入 `enabledPlugins` 即可保持状态。
+- **显式启用**才是当前主工作集。
+- **显式禁用**说明曾经装过，但当前不纳入主工作流。
+- **已安装但未显式声明**表示装过，但文档不应把它写成“当前启用”。
 
-> 早期版本本文档曾列出 `everything-claude-code@everything-claude-code`，当前已卸载，已不在任何分类内。
+额外注意：
+- `claude-md-management` 当前是 `local scope` 插件，绑定特定 `projectPath`，不能写成所有项目共享的全局插件标准。
 
-## 插件恢复为什么不是“勾上 enabledPlugins 就行”
+## 当前 marketplace 来源为什么也要单独核实
 插件恢复至少包含三段链路：
 1. marketplace 来源正确
 2. 插件实际安装成功
@@ -109,67 +132,68 @@ Claude Code 的可迁移资产分 4 层：
 
 少任何一步都不算真正恢复。
 
-所以执行版才会要求按这个顺序执行：
-- 先恢复 `extraKnownMarketplaces`
-- 再安装插件
-- 最后再按 `enabledPlugins` 启用
+当前 `settings.json.extraKnownMarketplaces` 已核实只有这 3 个：
+- `claude-plugins-official`
+- `claude-hud`
+- `openai-codex`
+
+所以迁移时不能继续把其他 marketplace 当作“当前机器已配置来源”。如果新机器需要额外来源，应作为新增决策，而不是按旧快照无脑复制。
 
 ## 为什么整个 `env` 都应该视为敏感区
 很多人迁移时只盯着 token，但实际风险来自整个 `env` 块。
 
 原因有两个：
 - 有些值本身就是凭据
-- 有些值虽然不是密钥，但仍然暴露基础设施、代理地址、模型配置或内部接入方式
+- 有些值虽然不是密钥，但仍然暴露基础设施、代理地址、模型映射或内部接入方式
 
-因此更稳妥的规则不是"删掉两个 token"，而是：
+因此更稳妥的规则不是“删掉两个 token”，而是：
 - 默认整个 `env` 都不跨机原样复制
 - 只导出键名
 - 在新机器重新填值
 
 ### env 三类实例划分
-将当前 `env` 按跨机可保留度分三类，实际扭的是不同的风险权衡：
-
 | 类别 | 示例键 | 为什么分这类 |
-|------|--------|----------|
-| **密钥/凭据** | `ANTHROPIC_AUTH_TOKEN`、`GITHUB_PERSONAL_ACCESS_TOKEN` | 同时是凭据和泄露成本最高的项；密钥轮换策略按此类执行 |
-| **本机代理/模型映射** | `ANTHROPIC_BASE_URL`（例如 `http://127.0.0.1:8318`）、`ANTHROPIC_DEFAULT_*_MODEL` | 不是凭据但暴露接入拓扑；跨机能否复用取决于新机器是否运行相同代理 |
-| **通用开关** | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`、`CLAUDE_CODE_USE_POWERSHELL_TOOL` | 纯行为开关，无敏感信息，可直接跨机 |
-
-这里的关键判断不是"全部删掉"而是"按风险类别重新赋值"：密钥类不复制值、代理类核实后保留或修改、开关类直接继承。
+|------|--------|-------------|
+| **密钥/凭据** | `ANTHROPIC_AUTH_TOKEN`、`GITHUB_PERSONAL_ACCESS_TOKEN` | 同时是凭据和泄露成本最高的项 |
+| **本机代理/模型映射** | `ANTHROPIC_BASE_URL`、`ANTHROPIC_DEFAULT_*_MODEL` | 不是凭据，但暴露接入拓扑；能否复用取决于新机器环境 |
+| **通用开关** | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`、`CLAUDE_CODE_USE_POWERSHELL_TOOL` | 行为开关；目标机仍需要同样行为且环境兼容时可继承 |
 
 ## 绝对路径为什么是跨机头号风险
-你当前环境里已经出现多种绝对路径耦合，每一类都有明确位置：
+当前环境里已经出现多种绝对路径耦合，每一类都有明确位置：
 
-| 耦合类型 | 当前本机实例 | 失效触发条件 |
-|---------|-------------|-------------|
-| `permissions.additionalDirectories` | `C:/Users/admin/.claude`、`C:\Users\admin\.claude\plans` | 用户名 / 盘符 / WSL 路径格式变化 |
-| `permissions.allow` | `Read(//c/Users/admin/Documents/...)`、`PowerShell(Get-ChildItem:*)` | 路径不存在或 shell 不为 PowerShell |
-| `hooks` 资源文件 | `C:\Windows\Media\Windows Notify.wav` | 非 Windows 系统该文件不存在 |
-| `statusLine` 外部命令 | `/c/Program Files/nodejs/node`、`bash`、`awk`、`sort`、`tail` | Node 安装位置变化或 GNU 工具链不存在 |
-| `statusLine` 缓存路径 | `${CLAUDE_CONFIG_DIR}/plugins/cache/claude-hud/claude-hud/*` | `claude-hud` 未安装或版本不同 |
+| 耦合类型 | 典型来源 | 失效触发条件 |
+|---------|---------|-------------|
+| `permissions.additionalDirectories` | 主配置或本地覆盖中的绝对路径 | 用户名、盘符、路径结构变化 |
+| `permissions.allow` | 含具体路径或 shell 前提的白名单 | 路径不存在或 shell 环境变化 |
+| `hooks` 资源文件 | 本机音频、脚本或命令路径 | 换平台后资源不存在 |
+| `statusLine` 外部命令 | `bash`、Node、插件缓存路径 | 工具链或缓存目录变化 |
+| 本地覆盖文件 | `.claude/settings.local.json` | 新机器环境与旧机器不一致 |
 
-这些不是"边角问题"，而是跨机迁移最常见故障源。
+这些不是边角问题，而是跨机迁移最常见故障源。
 
 ## 为什么 `hooks`、`statusLine`、`settings.local.json` 不该直接照搬
-它们的问题不在于"语法复杂"，而在于它们天然绑定机器环境。
+它们的问题不在于“语法复杂”，而在于它们天然绑定机器环境。
 
 ### `hooks`
-当前本机的 `Stop` hook：
-```
-(New-Object Media.SoundPlayer 'C:\Windows\Media\Windows Notify.wav').PlaySync()
-```
-同时绑定三件事：PowerShell 作为 shell、`.NET` `Media.SoundPlayer` 类、Windows 系统自带音频文件。其中任一条件换到新平台都失效。
+当前本机 `settings.json` 中包含 `Stop` hook。只要换平台、换 shell 或换资源路径，就可能失效。
+
+当前本机 hook 依赖 PowerShell + .NET `Media.SoundPlayer` + `C:\Windows\Media\Windows Notify.wav`，三者缺一即失效。
 
 ### `statusLine`
-当前本机调用链：`bash` → `ls` 遍历 → `awk` 拆分 → `sort` 按版本 → `tail` 取最新 → `/c/Program Files/nodejs/node` 跑 `claude-hud` 插件的 `dist/index.js`。上链除了外部工具，还绑定特定版本的插件缓存目录。
+当前本机 `statusLine` 通过外部命令拼接 `claude-hud` 的缓存目录和运行时路径，天然依赖：
+- `bash`
+- Node.js
+- 插件缓存目录结构
+- 当前机器上的可执行路径
+
+当前本机调用链依赖 bash、Node.js（`/c/Program Files/nodejs/node`）、awk/sort/tail 以及 claude-hud 插件缓存目录，任一条件变化即失效。
 
 ### `settings.local.json`
-它的定位本来就更接近"机器本地覆盖层"，不是跨机通用配置层。
+它本来就更接近“本机覆盖层”，不应被当成跨机通用模板。
 
-所以这三类内容最合理的处理方式不是"默认迁移"，而是"最后一层再逐项判断"。
+所以这三类内容最合理的处理方式不是“默认迁移”，而是“最后一层再逐项判断”。
 
 ## 迁移时应该保留什么，不保留什么
-
 ### 应该优先保留
 - `CLAUDE.md`
 - `rules`
@@ -190,18 +214,17 @@ Claude Code 的可迁移资产分 4 层：
 前一组定义长期工作方式与能力，后一组只是运行痕迹、缓存或会话态数据。
 
 ## 迁移失败最常见的 5 个原因
-
 ### 1. 复制了原始 `settings.json`
 结果把敏感 `env` 一并带走，形成泄露风险。
 
-### 2. 只恢复了启用标记，没有恢复插件来源与安装
+### 2. 只恢复了启用标记，没有恢复 marketplace 和安装
 表面上配置没问题，实际插件并不存在。
 
 ### 3. 旧机器绝对路径被原样复制
 新机器用户名、盘符或安装路径一变，配置立刻失效。
 
 ### 4. 低估了外部依赖
-没有 bash、Node、PowerShell 或 GNU 工具链时，部分能力会直接坏掉。
+没有 bash、Node、PowerShell 或其他依赖时，部分能力会直接坏掉。
 
 ### 5. 混淆了长期资产和会话态数据
 把 `plans`、`sessions`、`tool-results` 一并带走，不但没收益，还会引入脏状态。
@@ -213,23 +236,22 @@ Claude Code 的可迁移资产分 4 层：
    - 因为这两层稳定、低风险、长期有效
 
 2. 再恢复配置骨架层
-   - 因为插件来源、插件安装、启用状态必须按依赖顺序恢复
+   - 因为 marketplace、插件安装、启用状态有依赖顺序
 
 3. 再重新填写 `env`
    - 因为密钥应在新机器注入，而不是从旧机器复制原值
 
 4. 最后再处理机器耦合层
-   - 因为这部分最依赖新机器的真实环境，必须在前面稳定后再判断
+   - 因为这部分最依赖新机器真实环境，必须在前面稳定后再判断
 
 ## 你该怎么选迁移策略
-
-### 如果你的目标是"最快恢复可用"
+### 如果目标是“最快恢复可用”
 照执行版清单走：
 - 只迁最关键层
 - 先跑起来
 - 再逐项补高保真内容
 
-### 如果你的目标是“尽量高保真复刻旧环境”
+### 如果目标是“尽量高保真复刻旧环境”
 也不要整目录复制。
 仍然应该按四层模型来，只是：
 - 第 4 层复核得更细
@@ -243,4 +265,4 @@ Claude Code 的迁移不是“复制 `.claude` 目录”，而是“按层拆分
 - 配置骨架层脱敏后迁
 - 机器耦合层最后复核
 
-执行版负责回答"怎么迁"；这份专家版负责回答"为什么这样迁"。
+执行版负责回答“怎么迁”；这份专家版负责回答“为什么这样迁”。
