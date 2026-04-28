@@ -91,7 +91,7 @@
     }
   },
   "alwaysThinkingEnabled": false,
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "fastMode": false,
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,

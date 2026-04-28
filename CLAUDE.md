@@ -3,9 +3,10 @@
 
 ## 环境
 
-- OS: Windows 11 / PowerShell
-- 项目内优先使用 Python (Miniconda)
-- 始终用中文回复
+- OS: Windows 11
+- 终端偏好: PowerShell 7
+- 项目内优先使用 Miniconda 下的 Python
+- 始终用中文思考和回复
 
 **Trade-off 提示：** 以下规范倾向正确而非速度。纯文案、纯格式等无歧义琐碎任务可自行跳过部分流程。
 
